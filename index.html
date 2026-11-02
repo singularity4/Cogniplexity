@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cogniplexity</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@200;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #000000;
+    --text: #eaf2ff;
+    --muted: #8ea6c8;
+    --line: rgba(234, 242, 255, 0.35);
+    color-scheme: dark;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  :root[data-theme="dark"], :root[data-theme="light"] { --bg: #000000; }
+  *, *::before, *::after { box-sizing: inherit; margin: 0; }
+  html, body { height: 100%; background: var(--bg); overflow: hidden; }
+  body {
+    font-family: "Sora", "Helvetica Neue", Arial, sans-serif;
+    color: var(--text);
+  }
+  ::selection { background-color: #7c6cf2; color: #ffffff; }
+::-moz-selection { background-color: #7c6cf2; color: #ffffff; }
+:root { caret-color: #9a8cff; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+  main {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 2.5rem;
+    padding: 1.5rem;
+    text-align: center;
+    pointer-events: none;
+  }
+  h1 {
+    font-weight: 200;
+    font-size: clamp(2.2rem, 7vw, 5rem);
+    letter-spacing: 0.08em;
+    line-height: 1.1;
+    text-shadow: 0 0 24px rgba(127, 178, 255, 0.45);
+    opacity: 0;
+    animation: rise 2.4s ease-out 0.4s forwards;
+  }
+  .projects {
+    pointer-events: auto;
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 1.1rem;
+    opacity: 0;
+    animation: rise 2s ease-out 1.4s forwards;
+  }
+  .projects a, .projects span {
+    font: 400 clamp(1rem, 2.6vw, 1.15rem)/1.4 "Sora", "Helvetica Neue", Arial, sans-serif;
+    letter-spacing: 0.06em;
+    color: var(--text);
+    text-decoration: none;
+    transition: text-shadow 0.3s;
+  }
+  .projects a:hover { text-shadow: 0 0 14px rgba(127, 178, 255, 0.85); }
+  .projects a:focus-visible { outline: 2px solid var(--text); outline-offset: 6px; border-radius: 4px; }
+  .projects span { color: var(--muted); opacity: 0.6; }
+  @keyframes rise { from { opacity: 0; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) {
+    h1, .projects { animation: none; opacity: 1; }
+  }
+</style>
+</head>
+<body>
+<canvas id="net" aria-hidden="true"></canvas>
+<main>
+  <h1>Cogniplexity</h1>
+  <nav aria-label="Projects">
+    <ul class="projects">
+      <li><a href="prism4d.html">Moral Machine (PRISM-4D)</a></li>
+      <li><a href="tom.html">Theory of Mind</a></li>
+      <li><a href="lens.html">Strong Gravitational Lensing</a></li>
+      <li><a href="https://github.com/singularity4/LensPlayground" target="_blank" rel="noopener">LensPlayground</a></li>
+    </ul>
+  </nav>
+</main>
+<script>
+// Animated background network for the Cogniplexity entry page.
+(() => {
+  const canvas = document.getElementById('net');
+  const ctx = canvas.getContext('2d');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const SPRITE_SIZE = 64;
+  const SHAPE_SHARE = 0.15;        // share of nodes drawn as triangles or squares
+  const PURPLE_SHARE = 0.1;        // share of round nodes drawn purple
+  const GREEN_NODES = 2;           // number of neon green accent nodes
+  const PULSE_INTERVAL_MS = 280;   // how often a light pulse starts along a link
+
+  // Each color: [inner glow, outer glow] as "r,g,b"
+  const PALETTE = {
+    silver: ['228,232,240', '170,182,200'],
+    blue:   ['205,225,255', '90,150,255'],
+    pink:   ['255,215,235', '255,110,190'],
+    purple: ['228,215,255', '160,110,255'],
+    green:  ['215,255,230', '80,255,160']
+  };
+
+  let width = 0, height = 0, linkDistance = 0;
+  let nodes = [], pulses = [];
+  const pointer = { x: -9999, y: -9999 };
+
+  function newSpriteCanvas() {
+    const sprite = document.createElement('canvas');
+    sprite.width = sprite.height = SPRITE_SIZE;
+    return sprite;
+  }
+
+  // Round glowing node
+  function roundSprite(innerColor, outerColor) {
+    const sprite = newSpriteCanvas();
+    const g = sprite.getContext('2d');
+    const center = SPRITE_SIZE / 2;
+    const gradient = g.createRadialGradient(center, center, 0, center, center, center);
+    gradient.addColorStop(0, 'rgba(255,255,255,1)');
+    gradient.addColorStop(0.12, `rgba(${innerColor},0.9)`);
+    gradient.addColorStop(0.35, `rgba(${outerColor},0.35)`);
+    gradient.addColorStop(1, `rgba(${outerColor},0)`);
+    g.fillStyle = gradient;
+    g.fillRect(0, 0, SPRITE_SIZE, SPRITE_SIZE);
+    return sprite;
+  }
+
+  // Triangle or square with the same soft glow, built from layered shapes
+  function shapeSprite(shape, innerColor, outerColor) {
+    const sprite = newSpriteCanvas();
+    const g = sprite.getContext('2d');
+    const center = SPRITE_SIZE / 2;
+    const tracePath = (halfSize) => {
+      g.beginPath();
+      if (shape === 'square') {
+        g.rect(center - halfSize, center - halfSize, halfSize * 2, halfSize * 2);
+      } else {
+        for (let corner = 0; corner < 3; corner++) {
+          const angle = -Math.PI / 2 + corner * (Math.PI * 2 / 3);
+          const x = center + Math.cos(angle) * halfSize * 1.2;
+          const y = center + Math.sin(angle) * halfSize * 1.2;
+          if (corner === 0) g.moveTo(x, y); else g.lineTo(x, y);
+        }
+        g.closePath();
+      }
+    };
+    // [half size, opacity, color] from the faint outer halo to the bright core
+    const layers = [
+      [22, 0.05, outerColor], [17, 0.07, outerColor], [12, 0.11, outerColor], [8, 0.2, outerColor],
+      [5.5, 0.45, innerColor], [3.5, 0.85, innerColor], [2.5, 1, '255,255,255']
+    ];
+    g.shadowColor = `rgba(${outerColor},0.6)`;
+    for (const [halfSize, opacity, color] of layers) {
+      g.shadowBlur = halfSize * 0.7;
+      g.fillStyle = `rgba(${color},${opacity})`;
+      tracePath(halfSize);
+      g.fill();
+    }
+    return sprite;
+  }
+
+  const roundSprites = {};
+  for (const name in PALETTE) roundSprites[name] = roundSprite(...PALETTE[name]);
+  const shapeSprites = {
+    triangle: shapeSprite('triangle', ...PALETTE.pink),
+    square: shapeSprite('square', ...PALETTE.blue)
+  };
+
+  const randomItem = (list) => list[Math.floor(Math.random() * list.length)];
+
+  function pickShape() {
+    const roll = Math.random();
+    if (roll < SHAPE_SHARE / 2) return 'triangle';
+    if (roll < SHAPE_SHARE) return 'square';
+    return 'round';
+  }
+
+  function createNodes() {
+    const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width * pixelRatio;
+    canvas.height = height * pixelRatio;
+    ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+
+    linkDistance = Math.max(110, Math.min(170, Math.min(width, height) / 5));
+    const count = Math.min(170, Math.max(45, Math.floor((width * height) / 9000)));
+    nodes = Array.from({ length: count }, () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      velocityX: (Math.random() - 0.5) * 0.18,
+      velocityY: (Math.random() - 0.5) * 0.18,
+      radius: 0.8 + Math.random() * 1.8,
+      twinklePhase: Math.random() * Math.PI * 2,
+      twinkleSpeed: 0.6 + Math.random() * 1.6,
+      shape: pickShape(),
+      color: 'silver',
+      rotation: Math.random() * Math.PI * 2
+    }));
+
+    const roundNodes = nodes.filter((node) => node.shape === 'round');
+    for (const node of roundNodes) node.color = Math.random() < PURPLE_SHARE ? 'purple' : 'silver';
+    for (let i = 0; i < GREEN_NODES && roundNodes.length; i++) randomItem(roundNodes).color = 'green';
+    pulses = [];
+  }
+
+  function startPulse() {
+    for (let attempt = 0; attempt < 20; attempt++) {
+      const from = randomItem(nodes), to = randomItem(nodes);
+      if (from !== to && Math.hypot(from.x - to.x, from.y - to.y) < linkDistance) {
+        pulses.push({ from, to, elapsed: 0, duration: 900 + Math.random() * 900 });
+        return;
+      }
+    }
+  }
+
+  function drawLine(x1, y1, x2, y2, color) {
+    ctx.strokeStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+  }
+
+  let lastFrame = performance.now(), sinceLastPulse = 0;
+
+  function drawFrame(now) {
+    const deltaMs = Math.min(50, now - lastFrame);
+    lastFrame = now;
+    const seconds = now / 1000;
+    const pointerReach = linkDistance * 1.2;
+
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, width, height);
+    ctx.globalCompositeOperation = 'lighter';
+
+    // Drift, wrapping around the edges
+    if (!reducedMotion) {
+      for (const node of nodes) {
+        node.x += node.velocityX * deltaMs * 0.06;
+        node.y += node.velocityY * deltaMs * 0.06;
+        if (node.x < -20) node.x = width + 20; else if (node.x > width + 20) node.x = -20;
+        if (node.y < -20) node.y = height + 20; else if (node.y > height + 20) node.y = -20;
+      }
+    }
+
+    // Links between nearby nodes, and to the pointer
+    ctx.lineWidth = 0.6;
+    for (let i = 0; i < nodes.length; i++) {
+      const a = nodes[i];
+      for (let j = i + 1; j < nodes.length; j++) {
+        const b = nodes[j];
+        const distance = Math.hypot(a.x - b.x, a.y - b.y);
+        if (distance < linkDistance) {
+          const strength = 1 - distance / linkDistance;
+          drawLine(a.x, a.y, b.x, b.y, `rgba(127,178,255,${(strength * 0.35).toFixed(3)})`);
+        }
+      }
+      const pointerDistance = Math.hypot(a.x - pointer.x, a.y - pointer.y);
+      if (pointerDistance < pointerReach) {
+        const strength = 1 - pointerDistance / pointerReach;
+        drawLine(a.x, a.y, pointer.x, pointer.y, `rgba(220,235,255,${(strength * 0.5).toFixed(3)})`);
+      }
+    }
+
+    // Nodes, each twinkling at its own pace and brightening near the pointer
+    for (const node of nodes) {
+      const twinkle = reducedMotion ? 0.7 : 0.35 + 0.65 * Math.pow((Math.sin(seconds * node.twinkleSpeed + node.twinklePhase) + 1) / 2, 2.2);
+      const nearPointer = Math.max(0, 1 - Math.hypot(node.x - pointer.x, node.y - pointer.y) / pointerReach);
+      const glowRadius = node.radius * (7 + 6 * twinkle + 6 * nearPointer);
+      ctx.globalAlpha = Math.min(1, twinkle + nearPointer * 0.5);
+      if (node.shape === 'round') {
+        ctx.drawImage(roundSprites[node.color], node.x - glowRadius, node.y - glowRadius, glowRadius * 2, glowRadius * 2);
+      } else {
+        ctx.save();
+        ctx.translate(node.x, node.y);
+        ctx.rotate(node.rotation);
+        ctx.drawImage(shapeSprites[node.shape], -glowRadius, -glowRadius, glowRadius * 2, glowRadius * 2);
+        ctx.restore();
+      }
+    }
+    ctx.globalAlpha = 1;
+
+    // Light pulses travelling along links
+    if (!reducedMotion) {
+      sinceLastPulse += deltaMs;
+      if (sinceLastPulse > PULSE_INTERVAL_MS) { sinceLastPulse = 0; startPulse(); }
+      pulses = pulses.filter((pulse) => (pulse.elapsed += deltaMs) < pulse.duration);
+      for (const pulse of pulses) {
+        const progress = pulse.elapsed / pulse.duration;
+        const x = pulse.from.x + (pulse.to.x - pulse.from.x) * progress;
+        const y = pulse.from.y + (pulse.to.y - pulse.from.y) * progress;
+        ctx.globalAlpha = Math.sin(progress * Math.PI);
+        ctx.drawImage(roundSprites.silver, x - 9, y - 9, 18, 18);
+      }
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(drawFrame);
+    }
+  }
+
+  const hidePointer = () => { pointer.x = pointer.y = -9999; };
+  window.addEventListener('resize', () => { createNodes(); if (reducedMotion) drawFrame(performance.now()); });
+  window.addEventListener('pointermove', (event) => { pointer.x = event.clientX; pointer.y = event.clientY; });
+  window.addEventListener('pointerleave', hidePointer);
+  document.addEventListener('pointerout', (event) => { if (!event.relatedTarget) hidePointer(); });
+
+  createNodes();
+  requestAnimationFrame(drawFrame);
+})();
+</script>
+</body>
+</html>
