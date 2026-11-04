@@ -1,0 +1,15 @@
+{
+  "title": "Cogniplexity: A Citizen Science Platform for Human–Artificial Intelligence",
+  "upload_type": "software",
+  "creators": [
+    {"name": "Tolic, Dijana", "orcid": "0000-0003-1498-6686"}
+  ],
+  "license": "cc-by-nc-4.0",
+  "language": "eng",
+  "keywords": ["citizen science", "machine learning", "data science"],
+  "related_identifiers": [
+    {"identifier": "10.2139/ssrn.7617478", "relation": "cites", "scheme": "doi", "resource_type": "publication-preprint"},
+    {"identifier": "10.2139/ssrn.7593761", "relation": "cites", "scheme": "doi", "resource_type": "publication-preprint"},
+    {"identifier": "10.2139/ssrn.7438399", "relation": "cites", "scheme": "doi", "resource_type": "publication-preprint"}
+  ]
+}
