@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cogniplexity study</title>
+<!-- ================================================================
+     HOW TO USE THIS TEMPLATE
+     1. Copy this file, and the fonts folder next to it, for your study.
+     2. Fill in section 1 (your settings). Every text on the page comes from there.
+     3. Write what participants do with each item in section 5, or keep the example task.
+     4. Set saveTo (section 1) to the address that stores your answers. Leave it empty while testing.
+     Sections 2-4 are the same for every Cogniplexity study: don't change them.
+     ================================================================ -->
+<link rel="stylesheet" href="fonts/fonts.css">   <!-- fonts hosted with the page: nothing is loaded from Google -->
+
+<!-- ================================================================
+     1. YOUR STUDY SETTINGS: fill these in.
+     Every text on the page comes from here.
+     ================================================================ -->
+<script>
+const STUDY = {
+  // About your study
+  title:    "Your study title",
+  label:    "Your project · test version",          // small line above the headline
+  question: "Your research question goes here?",
+  about:    "One or two sentences on what your study is about and why it matters. Every text on this page comes from the settings at the top of the file.",
+  minutes:  3,                                       // roughly how long it takes
+  author:   "Your name",
+
+  // What participants agree to before they start
+  consent: [
+    "What participants will do, and how long it takes.",
+    "What data is collected, for example their answers, age range and country.",
+    "That taking part is voluntary and anonymous."
+  ],
+
+  // Shown before the task: what to look for
+  tips: [
+    { title: "First thing to look for", text: "A short explanation in plain words." },
+    { title: "Second thing to look for", text: "Another short explanation." },
+    { title: "What it is not", text: "A common mistake to avoid." }
+  ],
+
+  // The task: the question asked for every item, the answer buttons, and the items.
+  // ask, choices and unsure are used by the example task in section 5; your own task can use its own settings.
+  // An item can have text, an image (image: "my-picture.png"), or both.
+  // "answer" is the known label, used for the score. Leave it out if there is no right answer.
+  ask:      "Which option fits this item?",
+  choices:  ["Option A", "Option B"],
+  unsure:   "Unsure",                                // extra button; set to "" to remove it
+  shuffle:  true,                                    // show items in random order
+  items: [
+    { text: "Example item 1. Replace it with your own text or image.", answer: "Option A" },
+    { text: "Example item 2", answer: "Option B" },
+    { text: "Example item 3", answer: "Option A" },
+    { text: "Example item 4", answer: "Option B" },
+    { text: "Example item 5", answer: "Option A" },
+    { text: "Example item 6", answer: "Option B" }
+  ],
+
+  // Results screen: change these if your items have no known labels, e.g. "Claude's labels"
+  resultsTitle: "Your answers and the known labels",
+  scoreText:    "items where your answer matches the label",
+  labelName:    "Label",                             // under each item: "You: ..." and "Label: ..."
+  legend:       { match: "same as the label", miss: "different from the label", unsure: "unsure" },
+  unsureCounts: true,                                // true: an "unsure" answer counts as not matching in the score;
+                                                     // false: the score uses only items with a real answer (adapt scoreText)
+
+  // Papers and data sources
+  references: [
+    { text: "Author, A. (2026). Title of the paper behind this study. Journal.", url: "" },
+    { text: "Author, B. (2025). Where the data comes from. Journal.", url: "" }
+  ],
+  credits: "Data: where your images, sounds or texts come from.",
+
+  // Optional extra button on the results screen, e.g. a related tool. Leave url empty for none.
+  link: { text: "", url: "" },
+
+  // Where answers are sent. Leave empty while testing: nothing is saved.
+  // At the end of each session, one record is sent to this address (POST, as JSON text):
+  //   { study, version, session, started, finished,
+  //     answers: [ { item, choice, label, ms } ] }   // item: position in items; label: its answer;
+  //                                                  // ms: time from showing the item to the answer
+  //                                                  // (item images are loaded before the first item, so ms
+  //                                                  // does not include their download time)
+  // The page cannot confirm that your server stored a record (the browser does not pass the server's reply to
+  // the page), so check the first records on your server.
+  saveTo: "",
+  version: "test-1",
+
+  // Optional: add "repeat" to each record, the number of sessions this browser sent before (0 = the first).
+  // Only a hint: a private window, another device or cleared browser data start again at 0.
+  // While this is false, nothing is stored in the participant's browser.
+  markRepeats: false
+};
+</script>
+
+<!-- ================================================================
+     2. THE COGNIPLEXITY LOOK: shared by every study. Don't change.
+     ================================================================ -->
+<style>
+:root {
+  --bg: #000; --surface: #131519; --surface-2: #1b1f26; --line: #263142;
+  --fg: #eaf2ff; --muted: #8ea6c8; --faint: #5f7391;
+  --accent: #7fb2ff; --accent-soft: rgba(127, 178, 255, 0.12);
+  --good: #5cbf85; --bad: #e2766b;
+  --sans: "Sora", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; background: var(--bg); color: var(--fg); }
+body { font-family: var(--sans); font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+main { position: relative; z-index: 1; max-width: 44rem; margin: 0 auto; padding: 12px 20px 40px; }
+.screen { display: flex; flex-direction: column; gap: 22px; animation: fade .25s ease; }
+@keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .screen { animation: none; } * { transition: none !important; } }
+
+.eyebrow, .mono { font-family: var(--mono); }
+.eyebrow { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0; }
+h1 { font-size: clamp(28px, 7vw, 40px); line-height: 1.15; font-weight: 600; letter-spacing: -.01em; margin: 0; text-wrap: balance; }
+h2 { font-size: 24px; line-height: 1.25; font-weight: 600; margin: 0; text-wrap: balance; }
+h3 { font-size: 15px; font-weight: 600; margin: 0 0 4px; }
+p { margin: 0; }
+.dim { color: var(--muted); }
+.head { display: flex; flex-direction: column; gap: 12px; }
+.meta { font-family: var(--mono); font-size: 13px; color: var(--muted); }
+a { color: var(--accent); text-underline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+::selection { background-color: #7c6cf2; color: #fff; }
+
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.btn { font: 500 16px var(--sans); padding: 14px 24px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer; text-decoration: none; display: inline-block; }
+.btn:hover { border-color: var(--faint); }
+.btn-primary { background: rgba(127, 178, 255, .08); border-color: rgba(127, 178, 255, .75); box-shadow: 0 0 18px rgba(127, 178, 255, .35), inset 0 0 10px rgba(127, 178, 255, .12); }
+.btn-primary:hover { border-color: #cfe0ff; box-shadow: 0 0 26px rgba(127, 178, 255, .6), inset 0 0 12px rgba(127, 178, 255, .18); }
+.btn:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
+.btn-quiet { background: transparent; border-color: transparent; color: var(--muted); padding-inline: 8px; }
+.btn-quiet:hover { color: var(--fg); border-color: transparent; }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; }
+.cards { display: grid; gap: 12px; }
+.cards .card p { font-size: 14px; color: var(--muted); }
+.note { border-left: 2px solid var(--accent); padding: 4px 0 4px 16px; color: var(--muted); }
+
+.points { margin: 0; padding-left: 18px; color: var(--muted); }
+.points li { margin-bottom: 6px; }
+.check { display: flex; gap: 12px; align-items: flex-start; padding: 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); cursor: pointer; }
+.check input { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--accent); }
+
+.counter { display: flex; justify-content: space-between; gap: 12px; }
+.progress { height: 3px; background: var(--surface-2); border-radius: 3px; overflow: hidden; margin-top: -12px; }
+.progress div { height: 100%; width: 0; background: var(--accent); transition: width .3s ease; }
+.tile { position: relative; background: #000; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; aspect-ratio: 1 / 1; display: grid; place-items: center; }
+.tile img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.tile .txt { padding: 20px; text-align: center; color: var(--fg); }
+.prompt { width: 100%; max-width: 440px; }
+.prompt .txt { font-size: 18px; }
+.task-area { display: flex; flex-direction: column; gap: 22px; }
+.answers { display: grid; gap: 10px; }
+.answer { font: 500 16px var(--sans); padding: 14px 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center; text-align: left; }
+.answer:hover { border-color: var(--accent); }
+.answer kbd { font: 500 12px var(--mono); color: var(--faint); border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px; }
+.answer.chosen { border-color: var(--accent); background: var(--accent-soft); }
+.answer:disabled { cursor: default; }
+.answer:disabled:not(.chosen) { opacity: .5; }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label, .field .flabel { font-size: 14px; color: var(--muted); }
+select, input[type="text"] { font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px; width: 100%; max-width: 22rem; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: 400 14px var(--sans); padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer; }
+.chip[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+
+.score { border-color: var(--accent); }
+.score-value { font: 500 56px var(--mono); line-height: 1.1; margin: 8px 0 6px; color: var(--accent); }
+.score-value span { font-size: 28px; color: var(--muted); }
+.summary { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.value { font: 500 28px var(--mono); margin: 0 0 4px; }
+.label { font-size: 14px; color: var(--muted); }
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.result { margin: 0; }
+.result .tile .txt { font-size: 12px; padding: 10px; }
+.result .tile.match { outline: 2px solid var(--good); outline-offset: -2px; }
+.result .tile.miss { outline: 2px solid var(--bad); outline-offset: -2px; }
+.result figcaption { font: 400 12px var(--mono); margin-top: 6px; line-height: 1.45; color: var(--muted); }
+.result figcaption b { font-weight: 500; color: var(--fg); }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--muted); }
+.legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+.legend .l-match::before { background: var(--good); }
+.legend .l-miss::before { background: var(--bad); }
+.legend .l-unsure::before { background: var(--line); }
+
+.reading { border-top: 1px solid var(--line); padding-top: 18px; display: flex; flex-direction: column; gap: 10px; }
+.reading ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.reading li { font-size: 14px; color: var(--muted); }
+.credits { position: relative; z-index: 1; max-width: 44rem; margin: 0 auto; padding: 0 20px 24px; font-size: 13px; color: var(--muted); display: flex; flex-direction: column; gap: 6px; }
+footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; padding-top: 8px; border-top: 1px solid var(--line); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+
+.cx-strip { position: relative; background: #000; overflow: hidden; }
+.cx-strip canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.cx-strip-inner { position: relative; z-index: 1; max-width: 44rem; margin: 0 auto; padding: 0 20px; display: flex; align-items: center; }
+.cx-strip--top { height: calc(112px + env(safe-area-inset-top, 0px)); padding-top: env(safe-area-inset-top, 0px); }
+.cx-strip--top .cx-strip-inner { height: 84px; }
+.cx-strip--top canvas { -webkit-mask-image: linear-gradient(to bottom, #000 90%, transparent); mask-image: linear-gradient(to bottom, #000 90%, transparent); }
+.cx-strip--bottom { padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
+.cx-strip--bottom .cx-strip-inner { display: block; }
+.cx-strip--bottom canvas { -webkit-mask-image: linear-gradient(to top, #000 90%, transparent); mask-image: linear-gradient(to top, #000 90%, transparent); }
+.cx-sparkles { position: fixed; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
+.cx-mark { font-family: var(--sans); font-weight: 200; font-size: 1.2rem; letter-spacing: .08em; color: #eaf2ff; text-decoration: none; text-shadow: 0 0 14px rgba(127, 178, 255, .5); }
+.cx-mark:hover { text-shadow: 0 0 16px rgba(127, 178, 255, .9); }
+</style>
+</head>
+<body>
+<canvas class="cx-sparkles" aria-hidden="true"></canvas>
+<div class="cx-strip cx-strip--top">
+  <canvas aria-hidden="true"></canvas>
+  <div class="cx-strip-inner"><a class="cx-mark" id="home-mark" href="#">Cogniplexity</a></div>
+</div>
+<script>
+// Network strips at the top and bottom of the page, matching the entry page network.
+(() => {
+  const SPRITE_SIZE = 64;
+  const LINK_DISTANCE = 75;
+  const SHAPE_SHARE = 0.15;
+  const PURPLE_SHARE = 0.1;
+  const PALETTE = {
+    silver: ['228,232,240', '170,182,200'],
+    blue:   ['205,225,255', '90,150,255'],
+    pink:   ['255,215,235', '255,110,190'],
+    purple: ['228,215,255', '160,110,255'],
+    green:  ['215,255,230', '80,255,160']
+  };
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const randomItem = (list) => list[Math.floor(Math.random() * list.length)];
+
+  function newSpriteCanvas() {
+    const sprite = document.createElement('canvas');
+    sprite.width = sprite.height = SPRITE_SIZE;
+    return sprite;
+  }
+
+  function roundSprite(innerColor, outerColor) {
+    const sprite = newSpriteCanvas();
+    const g = sprite.getContext('2d');
+    const center = SPRITE_SIZE / 2;
+    const gradient = g.createRadialGradient(center, center, 0, center, center, center);
+    gradient.addColorStop(0, 'rgba(255,255,255,1)');
+    gradient.addColorStop(0.18, `rgba(${innerColor},0.75)`);
+    gradient.addColorStop(0.45, `rgba(${outerColor},0.18)`);
+    gradient.addColorStop(1, `rgba(${outerColor},0)`);
+    g.fillStyle = gradient;
+    g.fillRect(0, 0, SPRITE_SIZE, SPRITE_SIZE);
+    return sprite;
+  }
+
+  function shapeSprite(shape, innerColor, outerColor) {
+    const sprite = newSpriteCanvas();
+    const g = sprite.getContext('2d');
+    const center = SPRITE_SIZE / 2;
+    const tracePath = (halfSize) => {
+      g.beginPath();
+      if (shape === 'square') {
+        g.rect(center - halfSize, center - halfSize, halfSize * 2, halfSize * 2);
+      } else {
+        for (let corner = 0; corner < 3; corner++) {
+          const angle = -Math.PI / 2 + corner * (Math.PI * 2 / 3);
+          const x = center + Math.cos(angle) * halfSize * 1.2;
+          const y = center + Math.sin(angle) * halfSize * 1.2;
+          if (corner === 0) g.moveTo(x, y); else g.lineTo(x, y);
+        }
+        g.closePath();
+      }
+    };
+    const layers = [
+      [22, 0.05, outerColor], [17, 0.07, outerColor], [12, 0.11, outerColor], [8, 0.2, outerColor],
+      [5.5, 0.45, innerColor], [3.5, 0.85, innerColor], [2.5, 1, '255,255,255']
+    ];
+    g.shadowColor = `rgba(${outerColor},0.6)`;
+    for (const [halfSize, opacity, color] of layers) {
+      g.shadowBlur = halfSize * 0.7;
+      g.fillStyle = `rgba(${color},${opacity})`;
+      tracePath(halfSize);
+      g.fill();
+    }
+    return sprite;
+  }
+
+  const roundSprites = {};
+  for (const name in PALETTE) roundSprites[name] = roundSprite(...PALETTE[name]);
+  const shapeSprites = {
+    triangle: shapeSprite('triangle', ...PALETTE.pink),
+    square: shapeSprite('square', ...PALETTE.blue)
+  };
+
+  function pickShape() {
+    const roll = Math.random();
+    if (roll < SHAPE_SHARE / 2) return 'triangle';
+    if (roll < SHAPE_SHARE) return 'square';
+    return 'round';
+  }
+
+  function animateStrip(strip) {
+    const canvas = strip.querySelector('canvas');
+    const ctx = canvas.getContext('2d');
+    let width = 0, height = 0, nodes = [], visible = true;
+
+    function createNodes() {
+      const pixelRatio = Math.min(devicePixelRatio || 1, 2);
+      width = strip.clientWidth;
+      height = strip.clientHeight;
+      canvas.width = width * pixelRatio;
+      canvas.height = height * pixelRatio;
+      ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+      const count = Math.min(130, Math.max(18, Math.floor((width / 20) * (height / 84))));
+      nodes = Array.from({ length: count }, () => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        velocityX: (Math.random() - 0.5) * 0.05,
+        velocityY: (Math.random() - 0.5) * 0.03,
+        radius: 0.6 + Math.random() * 1.1,
+        twinklePhase: Math.random() * Math.PI * 2,
+        twinkleSpeed: 0.4 + Math.random() * 1.2,
+        shape: pickShape(),
+        color: Math.random() < PURPLE_SHARE ? 'purple' : 'silver',
+        rotation: Math.random() * Math.PI * 2
+      }));
+      const roundNodes = nodes.filter((node) => node.shape === 'round');
+      if (roundNodes.length) randomItem(roundNodes).color = 'green';
+    }
+
+    let lastFrame = performance.now();
+    function drawFrame(now) {
+      const deltaMs = Math.min(50, now - lastFrame);
+      lastFrame = now;
+      const seconds = now / 1000;
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.clearRect(0, 0, width, height);
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.lineWidth = 0.5;
+
+      // Drift sideways with wrap-around, bounce off the top and bottom
+      if (!reducedMotion) {
+        for (const node of nodes) {
+          node.x += node.velocityX * deltaMs;
+          node.y += node.velocityY * deltaMs;
+          if (node.x < -10) node.x = width + 10; else if (node.x > width + 10) node.x = -10;
+          if (node.y < 0 || node.y > height) node.velocityY *= -1;
+        }
+      }
+
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const a = nodes[i], b = nodes[j];
+          const distance = Math.hypot(a.x - b.x, a.y - b.y);
+          if (distance < LINK_DISTANCE) {
+            ctx.strokeStyle = `rgba(127,178,255,${((1 - distance / LINK_DISTANCE) * 0.3).toFixed(3)})`;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+          }
+        }
+      }
+
+      for (const node of nodes) {
+        const twinkle = reducedMotion ? 0.6 : 0.3 + 0.7 * Math.pow((Math.sin(seconds * node.twinkleSpeed + node.twinklePhase) + 1) / 2, 2.2);
+        const glowRadius = node.radius * (4 + 3 * twinkle);
+        ctx.globalAlpha = twinkle;
+        if (node.shape === 'round') {
+          ctx.drawImage(roundSprites[node.color], node.x - glowRadius, node.y - glowRadius, glowRadius * 2, glowRadius * 2);
+        } else {
+          const shapeRadius = glowRadius * 1.8;   // shapes are drawn larger so they stay recognisable
+          ctx.save();
+          ctx.translate(node.x, node.y);
+          ctx.rotate(node.rotation);
+          ctx.drawImage(shapeSprites[node.shape], -shapeRadius, -shapeRadius, shapeRadius * 2, shapeRadius * 2);
+          ctx.restore();
+        }
+      }
+      ctx.globalAlpha = 1;
+      if (!reducedMotion && visible) requestAnimationFrame(drawFrame);
+    }
+
+    // Pause the animation while the strip is off screen
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(([entry]) => {
+        const wasVisible = visible;
+        visible = entry.isIntersecting;
+        if (visible && !wasVisible && !reducedMotion) { lastFrame = performance.now(); requestAnimationFrame(drawFrame); }
+      }).observe(strip);
+    }
+    addEventListener('resize', () => { createNodes(); if (reducedMotion || !visible) drawFrame(performance.now()); });
+    createNodes();
+    requestAnimationFrame(drawFrame);
+  }
+
+  // Sparse sparkles in the empty side margins on wide screens, between the top and bottom strips
+  const SPARKLE_AREA = 30000;   // one sparkle per this many square pixels of empty margin
+  const SPARKLE_GAP = 40;       // space kept clear next to the content column
+
+  function sparkleMargins(canvas) {
+    const ctx = canvas.getContext('2d');
+    const column = document.querySelector('main');
+    let width = 0, height = 0, sparkles = [], running = false;
+
+    function placeSparkles() {
+      const pixelRatio = Math.min(devicePixelRatio || 1, 2);
+      width = canvas.clientWidth;
+      height = canvas.clientHeight;
+      canvas.width = width * pixelRatio;
+      canvas.height = height * pixelRatio;
+      ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+      const bounds = column.getBoundingClientRect();
+      const sides = [[0, bounds.left - SPARKLE_GAP], [bounds.right + SPARKLE_GAP, width]];
+      sparkles = [];
+      for (const [from, to] of sides) {
+        const margin = to - from;
+        if (margin < 80) continue;   // no room on narrow screens
+        const count = Math.round(margin * height / SPARKLE_AREA);
+        for (let i = 0; i < count; i++) sparkles.push({
+          x: from + Math.random() * margin,
+          y: Math.random() * height,
+          radius: 0.6 + Math.random() * 0.9,
+          twinklePhase: Math.random() * Math.PI * 2,
+          twinkleSpeed: 0.3 + Math.random() * 0.8,
+          color: Math.random() < PURPLE_SHARE ? 'purple' : 'silver'
+        });
+      }
+    }
+
+    function drawSparkles(now) {
+      const seconds = now / 1000;
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.clearRect(0, 0, width, height);
+      ctx.globalCompositeOperation = 'lighter';
+      for (const sparkle of sparkles) {
+        const twinkle = reducedMotion ? 0.5 : 0.15 + 0.6 * Math.pow((Math.sin(seconds * sparkle.twinkleSpeed + sparkle.twinklePhase) + 1) / 2, 2.2);
+        const glowRadius = sparkle.radius * (4 + 3 * twinkle);
+        ctx.globalAlpha = twinkle;
+        ctx.drawImage(roundSprites[sparkle.color], sparkle.x - glowRadius, sparkle.y - glowRadius, glowRadius * 2, glowRadius * 2);
+      }
+      ctx.globalAlpha = 1;
+      running = !reducedMotion && sparkles.length > 0;
+      if (running) requestAnimationFrame(drawSparkles);
+    }
+
+    function refresh() {
+      placeSparkles();
+      if (!running) drawSparkles(performance.now());
+    }
+    addEventListener('resize', refresh);
+    refresh();
+  }
+
+  const start = () => {
+    document.querySelectorAll('.cx-strip').forEach(animateStrip);
+    const sparkleCanvas = document.querySelector('.cx-sparkles');
+    if (sparkleCanvas) sparkleMargins(sparkleCanvas);
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+})();
+</script>
+
+<!-- ================================================================
+     3. THE PAGE: five screens, filled in from your settings.
+     ================================================================ -->
+<main id="app">
+
+  <section id="s-landing" class="screen">
+    <div class="head">
+      <p class="eyebrow" data-text="label"></p>
+      <h1 data-text="question"></h1>
+      <p class="dim" data-text="about"></p>
+    </div>
+    <p class="meta" id="meta"></p>
+    <div class="row"><button class="btn btn-primary" id="btn-start" type="button">Start</button></div>
+    <div class="reading" id="reading-wrap">
+      <p class="eyebrow">Further reading</p>
+      <ul id="reading"></ul>
+    </div>
+  </section>
+
+  <section id="s-consent" class="screen" hidden>
+    <div class="head">
+      <p class="eyebrow">Taking part</p>
+      <h2>About this study</h2>
+    </div>
+    <ul class="points" id="consent-points"></ul>
+    <label class="check"><input type="checkbox" id="consent-box"><span>I have read this and agree to take part.</span></label>
+    <div class="row">
+      <button class="btn btn-primary" id="btn-agree" type="button" disabled>Continue</button>
+      <button class="btn btn-quiet" type="button" data-go="landing">Back</button>
+    </div>
+  </section>
+
+  <section id="s-guide" class="screen" hidden>
+    <div class="head">
+      <p class="eyebrow">Before you start</p>
+      <h2>What to look for</h2>
+    </div>
+    <div class="cards" id="tips"></div>
+    <div class="row"><button class="btn btn-primary" id="btn-begin" type="button">Begin</button></div>
+  </section>
+
+  <section id="s-task" class="screen" hidden>
+    <div class="counter"><p class="eyebrow" data-text="label"></p><p class="eyebrow" id="count"></p></div>
+    <div class="progress"><div id="bar"></div></div>
+    <div class="task-area" id="task-area"></div>
+  </section>
+
+  <section id="s-results" class="screen" hidden>
+    <div class="head">
+      <p class="eyebrow">Results</p>
+      <h2 data-text="resultsTitle"></h2>
+    </div>
+    <div class="card score" id="score-card">
+      <p class="eyebrow">Your score</p>
+      <p class="score-value" id="score"></p>
+      <p class="label" data-text="scoreText"></p>
+    </div>
+    <div class="summary">
+      <div class="card"><p class="value" id="sum-answered"></p><p class="label">items answered</p></div>
+      <div class="card"><p class="value" id="sum-unsure"></p><p class="label">marked as unsure</p></div>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="legend"><span class="l-match" id="legend-match"></span><span class="l-miss" id="legend-miss"></span><span class="l-unsure" id="legend-unsure"></span></div>
+    <p class="note" id="save-note"></p>
+    <div class="row">
+      <button class="btn btn-primary" id="btn-again" type="button">Start again</button>
+      <a class="btn" id="home-link" href="#">More studies</a>
+      <a class="btn" id="extra-link" hidden></a>
+    </div>
+  </section>
+
+</main>
+
+<div class="credits" id="credits"></div>
+<div class="cx-strip cx-strip--bottom">
+  <canvas aria-hidden="true"></canvas>
+  <div class="cx-strip-inner">
+    <footer class="mono"><span id="foot-title"></span><span id="foot-save"></span></footer>
+  </div>
+</div>
+
+<!-- ================================================================
+     4. THE STANDARD PART: screens, consent, results and saving.
+     The same for every study. Don't change. Your task goes in section 5.
+     ================================================================ -->
+<script>
+(() => {
+"use strict";
+// The Cogniplexity homepage: where the logo and "More studies" lead. Set by Cogniplexity, the same for every study.
+// If Cogniplexity moves to a new address, only this line changes.
+const COGNIPLEXITY_HOME = "https://singularity4.github.io/Cogniplexity/";
+const $ = (id) => document.getElementById(id);
+const SCREENS = ["landing", "consent", "guide", "task", "results"];
+const saving = Boolean(STUDY.saveTo);
+let run = null;
+
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+function show(name) {
+  for (const s of SCREENS) $("s-" + s).hidden = s !== name;
+  window.scrollTo(0, 0);
+}
+function shuffle(list) {
+  for (let i = list.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [list[i], list[j]] = [list[j], list[i]]; }
+  return list;
+}
+function fillTile(tile, item) {
+  tile.replaceChildren();
+  if (item.image) {
+    const img = el("img");
+    img.src = item.image;
+    img.alt = item.text || "Study image";
+    tile.append(img);
+  } else {
+    tile.append(el("p", "txt", item.text || ""));
+  }
+}
+
+// Fill the page from the settings
+document.title = STUDY.title;
+document.querySelectorAll("[data-text]").forEach((node) => { node.textContent = STUDY[node.dataset.text] || ""; });
+$("meta").textContent = `About ${STUDY.minutes} minutes · ${STUDY.items.length} items · anonymous`;
+for (const ref of STUDY.references || []) {
+  const li = el("li");
+  if (ref.url) { const a = el("a", null, ref.text); a.href = ref.url; a.target = "_blank"; a.rel = "noopener"; li.append(a); }
+  else li.textContent = ref.text;
+  $("reading").append(li);
+}
+$("reading-wrap").hidden = !(STUDY.references || []).length;
+for (const point of STUDY.consent || []) $("consent-points").append(el("li", null, point));
+for (const tip of STUDY.tips || []) {
+  const card = el("div", "card");
+  card.append(el("h3", null, tip.title), el("p", null, tip.text));
+  $("tips").append(card);
+}
+if (STUDY.credits) $("credits").append(el("p", null, STUDY.credits));
+$("credits").append(el("p", null, `Study by ${STUDY.author}`));
+$("foot-title").textContent = `${STUDY.title} · ${STUDY.version}`;
+for (const key of ["match", "miss", "unsure"]) $("legend-" + key).textContent = (STUDY.legend || {})[key] || "";
+$("foot-save").textContent = saving ? "Answers are saved" : "Test version · not saved";
+$("home-mark").href = COGNIPLEXITY_HOME;
+$("home-link").href = COGNIPLEXITY_HOME;
+if (STUDY.link && STUDY.link.url) {
+  $("extra-link").textContent = STUDY.link.text;
+  $("extra-link").href = STUDY.link.url;
+  $("extra-link").hidden = false;
+}
+
+// Navigation
+document.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => show(b.dataset.go)));
+$("btn-start").addEventListener("click", () => show("consent"));
+$("consent-box").addEventListener("change", (e) => { $("btn-agree").disabled = !e.target.checked; });
+$("btn-agree").addEventListener("click", () => { if ((STUDY.tips || []).length) show("guide"); else startTask(); });
+$("btn-begin").addEventListener("click", startTask);
+$("btn-again").addEventListener("click", () => { $("consent-box").checked = false; $("btn-agree").disabled = true; show("landing"); });
+
+// Item images are downloaded and decoded before the first item, so the time to answer does not include
+// their download. A missing image does not block the study.
+const preloaded = [];
+function preloadImages() {
+  const sources = [...new Set(STUDY.items.map((item) => item.image).filter(Boolean))];
+  return Promise.all(sources.map((src) => {
+    const img = new Image();
+    img.src = src;
+    preloaded.push(img);                         // keep a reference so the browser keeps the image
+    const ready = img.decode ? img.decode() : new Promise((resolve, reject) => { img.onload = resolve; img.onerror = reject; });
+    return ready.catch(() => {});
+  }));
+}
+
+// The task
+function startTask() {
+  const order = STUDY.items.map((item, index) => index);
+  const thisRun = run = {
+    id: crypto.getRandomValues(new Uint32Array(2)).join("-"),
+    started: new Date().toISOString(),
+    order: STUDY.shuffle ? shuffle(order) : order,
+    step: 0,
+    answers: []
+  };
+  show("task");
+  $("count").textContent = "";
+  $("task-area").replaceChildren(el("p", "dim", "Loading…"));
+  preloadImages().then(() => { if (run === thisRun) showItem(); });
+}
+
+// Shows one item by calling showTask (section 5), then records the answer it hands back through done().
+function showItem() {
+  const thisRun = run;
+  const index = run.order[run.step];
+  const total = run.order.length;
+  const shownAt = performance.now();
+  let answered = false;
+  $("count").textContent = `${run.step + 1} / ${total}`;
+  $("bar").style.width = `${(run.step / total) * 100}%`;
+  $("task-area").replaceChildren();
+  showTask(STUDY.items[index], (answer) => {
+    if (answered || run !== thisRun) return;   // one answer per item
+    answered = true;
+    run.answers.push({ item: index, choice: answer, label: STUDY.items[index].answer ?? null, ms: Math.round(performance.now() - shownAt) });
+    setTimeout(() => {
+      run.step++;
+      if (run.step < run.order.length) showItem();
+      else finish();
+    }, 250);
+  });
+}
+
+// Optional (STUDY.markRepeats): how many sessions of this study and version this browser sent before.
+// null when the browser does not allow storage.
+function sentBefore() {
+  const key = `cogniplexity-sent:${STUDY.title}:${STUDY.version}`;
+  try {
+    const before = Number(localStorage.getItem(key)) || 0;
+    localStorage.setItem(key, String(before + 1));
+    return before;
+  } catch (error) {
+    return null;
+  }
+}
+
+// Results and saving
+function finish() {
+  // Answers can be text, numbers or objects; an answer counts as right when it equals the item's "answer".
+  const asText = (value) => (value !== null && typeof value === "object" ? JSON.stringify(value) : String(value));
+  const isRight = (a) => asText(a.choice) === asText(a.label);
+  const scored = run.answers.filter((a) => a.label != null && (STUDY.unsureCounts !== false || a.choice !== STUDY.unsure));
+  const correct = scored.filter(isRight).length;
+  const unsure = run.answers.filter((a) => a.choice === STUDY.unsure).length;
+  $("score-card").hidden = !scored.length;
+  $("score").innerHTML = `${correct} <span>/ ${scored.length}</span>`;
+  $("sum-answered").textContent = String(run.answers.length);
+  $("sum-unsure").textContent = String(unsure);
+  $("grid").replaceChildren(...run.answers.map((a) => {
+    const figure = el("figure", "result");
+    const tile = el("div", "tile");
+    fillTile(tile, STUDY.items[a.item]);
+    if (a.label != null && a.choice !== STUDY.unsure) tile.classList.add(isRight(a) ? "match" : "miss");
+    const caption = el("figcaption");
+    caption.append("You: ", el("b", null, asText(a.choice)), el("br"), `${STUDY.labelName || "Label"}: `, el("b", null, a.label == null ? "–" : asText(a.label)));
+    figure.append(tile, caption);
+    return figure;
+  }));
+  $("save-note").textContent = saving ? "Sending your answers…" : "Test version: answers are not saved.";
+  show("results");
+
+  if (!saving) return;
+  const record = { study: STUDY.title, version: STUDY.version, session: run.id, started: run.started, finished: new Date().toISOString(), answers: run.answers };
+  if (STUDY.markRepeats) record.repeat = sentBefore();
+  fetch(STUDY.saveTo, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(record) })
+    .then(() => { $("save-note").textContent = "Your answers were sent. Thank you for taking part."; })
+    .catch(() => { $("save-note").textContent = "Your answers could not be sent. Please check your connection."; });
+}
+})();
+</script>
+
+<!-- ================================================================
+     5. YOUR TASK: what participants do with each item. Replace freely.
+     The standard part calls showTask(item, done) once per item.
+     - item: one entry from STUDY.items
+     - draw anything into the element with id "task-area"
+     - call done(answer) once, when the person has answered
+     The answer can be text, a number or an object, for example
+     { x: 0.42, y: 0.17 } for a tap on an image. It is saved as is.
+     This example shows the item, asks STUDY.ask, and answers with buttons.
+     ================================================================ -->
+<script>
+function showTask(item, done) {
+  const area = document.getElementById("task-area");
+
+  // The item: its image, or its text
+  const tile = document.createElement("div");
+  tile.className = "tile prompt";
+  if (item.image) {
+    const img = document.createElement("img");
+    img.src = item.image;
+    img.alt = item.text || "Study image";
+    tile.append(img);
+  } else {
+    const text = document.createElement("p");
+    text.className = "txt";
+    text.textContent = item.text || "";
+    tile.append(text);
+  }
+
+  // The question
+  const question = document.createElement("h2");
+  question.textContent = STUDY.ask;
+
+  // The answer buttons
+  const answers = document.createElement("div");
+  answers.className = "answers";
+  const options = STUDY.unsure ? [...STUDY.choices, STUDY.unsure] : STUDY.choices;
+  options.forEach((choice, i) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "answer";
+    const name = document.createElement("span");
+    name.textContent = choice;
+    const key = document.createElement("kbd");
+    key.textContent = String(i + 1);
+    button.append(name, key);
+    button.addEventListener("click", () => {
+      button.classList.add("chosen");
+      answers.querySelectorAll("button").forEach((b) => { b.disabled = true; });
+      done(choice);
+    });
+    answers.append(button);
+  });
+
+  area.append(tile, question, answers);
+}
+
+// Number keys 1, 2, 3... pick an answer button
+document.addEventListener("keydown", (e) => {
+  if (document.getElementById("s-task").hidden) return;
+  if (e.target.closest && e.target.closest("input, textarea, select")) return;
+  const buttons = document.querySelectorAll("#task-area .answer");
+  const n = Number(e.key);
+  if (n >= 1 && n <= buttons.length && !buttons[n - 1].disabled) buttons[n - 1].click();
+});
+</script>
+</body>
+</html>
